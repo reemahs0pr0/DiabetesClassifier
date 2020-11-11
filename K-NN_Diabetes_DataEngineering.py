@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[76]:
+# In[1]:
 
 
 import numpy as np
@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sb
 
 
-# In[77]:
+# In[2]:
 
 
 df = pd.read_csv("diabetes.csv")
@@ -19,7 +19,7 @@ df
 
 # # Data Cleaning
 
-# In[85]:
+# In[3]:
 
 
 df['Glucose'].replace(0,np.NaN, inplace=True)
@@ -31,7 +31,7 @@ df = df.dropna()
 df
 
 
-# In[86]:
+# In[4]:
 
 
 outcome_0 = len(df[df['Outcome'] == 0])
@@ -45,7 +45,7 @@ sample_size = pd.DataFrame(
 sample_size
 
 
-# In[87]:
+# In[5]:
 
 
 df_0 = df[df['Outcome'] == 0]
@@ -56,7 +56,7 @@ df_1
 
 # # Data Balancing - Oversampling
 
-# In[88]:
+# In[6]:
 
 
 df_db1 = pd.DataFrame(columns=['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age', 'Outcome'])
@@ -71,7 +71,7 @@ for i in range(263):
 df_db1
 
 
-# In[89]:
+# In[7]:
 
 
 df_db = pd.concat([df_0, df_db1])
@@ -91,7 +91,7 @@ plt.show()
 
 # # Train our Model
 
-# In[91]:
+# In[8]:
 
 
 from sklearn.neighbors import KNeighborsClassifier
@@ -100,20 +100,20 @@ from sklearn.model_selection import train_test_split
 knn = KNeighborsClassifier(n_neighbors = 5) 
 
 
-# In[92]:
+# In[9]:
 
 
 X_train, X_test, y_train, y_test = train_test_split(df_db.iloc[:,0:8], df_db['Outcome'], random_state = 42)
 X_train.head()
 
 
-# In[93]:
+# In[10]:
 
 
 y_train.head()
 
 
-# In[94]:
+# In[11]:
 
 
 import time
@@ -125,7 +125,7 @@ print("Duration of training: %s seconds" % (time.time() - train_start_time))
 
 # # Evaluate our Model
 
-# In[95]:
+# In[12]:
 
 
 y_pred = knn.predict(X_test)
@@ -133,7 +133,7 @@ print(y_pred)
 print(y_test)
 
 
-# In[96]:
+# In[13]:
 
 
 from sklearn.metrics import accuracy_score
@@ -143,7 +143,7 @@ print(accuracy_score(y_test, y_pred))
 
 # # Predict some Value
 
-# In[97]:
+# In[14]:
 
 
 pred_start_time = time.time()
@@ -155,7 +155,7 @@ print("Duration of prediction: %s seconds" % (time.time() - pred_start_time))
 
 # # Exploring Different k Values
 
-# In[98]:
+# In[15]:
 
 
 k_array = np.arange(1, 30, 2)
@@ -163,7 +163,7 @@ k_array = np.arange(1, 30, 2)
 k_array
 
 
-# In[99]:
+# In[16]:
 
 
 acc = []
@@ -176,7 +176,7 @@ for k in k_array:
     print("Accuracy = {0}".format(ac))
 
 
-# In[105]:
+# In[17]:
 
 
 fig = plt.figure()
@@ -198,7 +198,7 @@ plt.show()
 # |predicted outcome A |                 |                 |
 # |predicted outcome B |                 |                 |
 
-# In[106]:
+# In[21]:
 
 
 from sklearn.metrics import confusion_matrix
@@ -206,26 +206,36 @@ cm = confusion_matrix(y_test, y_pred)
 sb.heatmap(cm, annot=True, cmap="Blues", fmt="d")
 
 
-# In[107]:
+# In[22]:
 
 
 from sklearn.metrics import classification_report
 print(classification_report(y_test,y_pred, digits=3))
 
 
-# In[108]:
+# # k = 19 (Highest Accuracy)
+
+# In[26]:
 
 
-#k = 19 ==> highest accuracy
 knn_19 = KNeighborsClassifier(n_neighbors = 19)
+
+train_start_time = time.time()
 knn_19.fit(X_train, y_train)
+print("Duration of training: %s seconds" % (time.time() - train_start_time))
+
 y_pred19 = knn_19.predict(X_test)
-print(accuracy_score(y_test, y_pred19))
+print("Accuracy: %s" % (accuracy_score(y_test, y_pred19)))
+
+pred_start_time = time.time()
+print("Prediction: %s" % (knn.predict([(2, 100, 70, 20, 100, 25, 0.5, 27)])))
+print("Duration of prediction: %s seconds" % (time.time() - pred_start_time))
+
 cm_19 = confusion_matrix(y_test, y_pred19)
 sb.heatmap(cm_19, annot=True, cmap="Blues", fmt="d")
 
 
-# In[104]:
+# In[25]:
 
 
 print(classification_report(y_test,y_pred19, digits=3))

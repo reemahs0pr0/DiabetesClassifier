@@ -19,7 +19,7 @@ df
 
 # # Data Cleaning
 
-# In[29]:
+# In[26]:
 
 
 df['Glucose'].replace(0,np.NaN, inplace=True)
@@ -31,7 +31,7 @@ df = df.dropna()
 df
 
 
-# In[30]:
+# In[27]:
 
 
 outcome_0 = len(df[df['Outcome'] == 0])
@@ -45,7 +45,7 @@ sample_size = pd.DataFrame(
 sample_size
 
 
-# In[31]:
+# In[28]:
 
 
 df_0 = df[df['Outcome'] == 0]
@@ -56,7 +56,7 @@ df_1
 
 # # Data Balancing - Oversampling
 
-# In[32]:
+# In[29]:
 
 
 df_db1 = pd.DataFrame(columns=['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age', 'Outcome'])
@@ -71,7 +71,7 @@ for i in range(263):
 df_db1
 
 
-# In[33]:
+# In[30]:
 
 
 df_db = pd.concat([df_0, df_db1])
@@ -91,7 +91,7 @@ plt.show()
 
 # # Feature Selection
 
-# In[35]:
+# In[31]:
 
 
 sb.heatmap(df_db.corr(), annot=True, cmap='BuPu')
@@ -100,8 +100,9 @@ plt.show()
 
 # - 'Insulin' is highly correlated to 'Glucose' and 'Insulin' has lower correlation with 'Outcome'
 # - 'BMI' is highly correlated to 'SkinThickness' and 'SkinThickness' has lower correlation with 'Outcome'
+# - 'Age' is highly correlated to 'Pregnancies' and 'Pregnancies' has lower correlation with 'Outcome'
 # 
-# Hence, we will discard 'Insulin' and 'SkinThickness'.
+# Hence, we will discard 'Insulin', 'SkinThickness' & 'Pregnancies'.
 # 
 # Correlation with 'Outcome' which is < 0.2 will be used to indicate weak correlation.
 # 
@@ -109,7 +110,7 @@ plt.show()
 
 # # Train our Model
 
-# In[137]:
+# In[32]:
 
 
 from sklearn.neighbors import KNeighborsClassifier
@@ -118,20 +119,20 @@ from sklearn.model_selection import train_test_split
 knn = KNeighborsClassifier(n_neighbors = 5) 
 
 
-# In[138]:
+# In[54]:
 
 
-X_train, X_test, y_train, y_test = train_test_split(df_db.iloc[:,[0,1,5,6,7]], df_db['Outcome'], random_state = 42)
+X_train, X_test, y_train, y_test = train_test_split(df_db.iloc[:,[1,5,6,7]], df_db['Outcome'], random_state = 42)
 X_train.head()
 
 
-# In[139]:
+# In[55]:
 
 
 y_train.head()
 
 
-# In[140]:
+# In[56]:
 
 
 import time
@@ -143,7 +144,7 @@ print("Duration of training: %s seconds" % (time.time() - train_start_time))
 
 # # Evaluate our Model
 
-# In[141]:
+# In[57]:
 
 
 y_pred = knn.predict(X_test)
@@ -151,7 +152,7 @@ print(y_pred)
 print(y_test)
 
 
-# In[142]:
+# In[58]:
 
 
 from sklearn.metrics import accuracy_score
@@ -161,19 +162,19 @@ print(accuracy_score(y_test, y_pred))
 
 # # Predict some Value
 
-# In[153]:
+# In[59]:
 
 
 pred_start_time = time.time()
-print(knn.predict([(6, 200, 30, 0.1, 57)]))
+print(knn.predict([(200, 30, 0.1, 57)]))
 print("Duration of prediction: %s seconds" % (time.time() - pred_start_time))
 
 
-# The Outcome from model predicting data with Pregnancies = 6, Glucose = 200, BMI = 30, DiabetesPedigreeFunction = 0.1, Age = 57 is 1
+# The Outcome from model predicting data with Glucose = 200, BMI = 30, DiabetesPedigreeFunction = 0.1, Age = 57 is 1
 
 # # Exploring Different k Values
 
-# In[154]:
+# In[60]:
 
 
 k_array = np.arange(1, 30, 2)
@@ -181,7 +182,7 @@ k_array = np.arange(1, 30, 2)
 k_array
 
 
-# In[155]:
+# In[61]:
 
 
 acc = []
@@ -194,7 +195,7 @@ for k in k_array:
     print("Accuracy = {0}".format(ac))
 
 
-# In[156]:
+# In[62]:
 
 
 fig = plt.figure()
@@ -216,7 +217,7 @@ plt.show()
 # |predicted outcome A |                 |                 |
 # |predicted outcome B |                 |                 |
 
-# In[157]:
+# In[63]:
 
 
 from sklearn.metrics import confusion_matrix
@@ -224,27 +225,9 @@ cm = confusion_matrix(y_test, y_pred)
 sb.heatmap(cm, annot=True, cmap="Blues", fmt="d")
 
 
-# In[158]:
+# In[64]:
 
 
 from sklearn.metrics import classification_report
 print(classification_report(y_test,y_pred, digits=3))
-
-
-# In[159]:
-
-
-#k = 9 ==> highest accuracy
-knn_9 = KNeighborsClassifier(n_neighbors = 9)
-knn_9.fit(X_train, y_train)
-y_pred9 = knn_9.predict(X_test)
-print(accuracy_score(y_test, y_pred9))
-cm_9 = confusion_matrix(y_test, y_pred9)
-sb.heatmap(cm_9, annot=True, cmap="Blues", fmt="d")
-
-
-# In[152]:
-
-
-print(classification_report(y_test,y_pred9, digits=3))
 

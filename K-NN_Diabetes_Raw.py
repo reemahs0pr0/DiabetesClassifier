@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sb
 
 
-# In[33]:
+# In[2]:
 
 
 df = pd.read_csv("diabetes.csv")
@@ -37,20 +37,20 @@ from sklearn.model_selection import train_test_split
 knn = KNeighborsClassifier(n_neighbors = 5) 
 
 
-# In[20]:
+# In[4]:
 
 
 X_train, X_test, y_train, y_test = train_test_split(df.iloc[:,0:8], df['Outcome'], random_state = 42)
 X_train.head()
 
 
-# In[21]:
+# In[5]:
 
 
 y_train.head()
 
 
-# In[22]:
+# In[6]:
 
 
 import time
@@ -62,7 +62,7 @@ print("Duration of training: %s seconds" % (time.time() - train_start_time))
 
 # # Evaluate our Model
 
-# In[23]:
+# In[7]:
 
 
 y_pred = knn.predict(X_test)
@@ -70,7 +70,7 @@ print(y_pred)
 print(y_test)
 
 
-# In[24]:
+# In[8]:
 
 
 from sklearn.metrics import accuracy_score
@@ -80,7 +80,7 @@ print(accuracy_score(y_test, y_pred))
 
 # # Predict some Value
 
-# In[25]:
+# In[9]:
 
 
 pred_start_time = time.time()
@@ -92,7 +92,7 @@ print("Duration of prediction: %s seconds" % (time.time() - pred_start_time))
 
 # # Exploring Different k Values
 
-# In[26]:
+# In[10]:
 
 
 k_array = np.arange(1, 30, 2)
@@ -100,7 +100,7 @@ k_array = np.arange(1, 30, 2)
 k_array
 
 
-# In[27]:
+# In[11]:
 
 
 acc = []
@@ -113,7 +113,7 @@ for k in k_array:
     print("Accuracy = {0}".format(ac))
 
 
-# In[28]:
+# In[12]:
 
 
 fig = plt.figure()
@@ -135,7 +135,7 @@ plt.show()
 # |predicted outcome A |                 |                 |
 # |predicted outcome B |                 |                 |
 
-# In[29]:
+# In[13]:
 
 
 from sklearn.metrics import confusion_matrix
@@ -143,27 +143,37 @@ cm = confusion_matrix(y_test, y_pred)
 sb.heatmap(cm, annot=True, cmap="Blues", fmt="d")
 
 
-# In[17]:
+# In[14]:
 
 
 from sklearn.metrics import classification_report
 print(classification_report(y_test,y_pred, digits=3))
 
 
-# In[30]:
+# # k = 13 (Highest Accuracy)
+
+# In[20]:
 
 
-#k = 13 ==> highest accuracy
 knn_13 = KNeighborsClassifier(n_neighbors = 13)
+
+train_start_time = time.time()
 knn_13.fit(X_train, y_train)
+print("Duration of training: %s seconds" % (time.time() - train_start_time))
+
 y_pred13 = knn_13.predict(X_test)
-print(accuracy_score(y_test, y_pred13))
+print("Accuracy: %s" % (accuracy_score(y_test, y_pred13)))
+
+pred_start_time = time.time()
+print("Prediction: %s" % (knn.predict([(2, 100, 70, 20, 100, 25, 0.5, 27)])))
+print("Duration of prediction: %s seconds" % (time.time() - pred_start_time))
+
 cm_13 = confusion_matrix(y_test, y_pred13)
 sb.heatmap(cm_13, annot=True, cmap="Blues", fmt="d")
 
 
-# In[34]:
+# In[17]:
 
 
-print(classification_report(y_test,y_pred7, digits=3))
+print(classification_report(y_test,y_pred13, digits=3))
 
