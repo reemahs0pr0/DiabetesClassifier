@@ -80,6 +80,13 @@ df_db['Outcome'] = df_db['Outcome'].astype(int)
 df_db
 
 
+# In[25]:
+
+
+sb.pairplot (df_db, hue='Outcome')
+plt.show()
+
+
 # # Feature Engineering
 
 # In[8]:
@@ -122,20 +129,20 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 
 
-# In[48]:
+# In[12]:
 
 
 x = pd.DataFrame(pc, columns=['PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'PC7', 'PC8'])
 x
 
 
-# In[49]:
+# In[13]:
 
 
 X_train, X_test, y_train, y_test = train_test_split(x, y,test_size=0.25,random_state = 42)
 
 
-# In[50]:
+# In[14]:
 
 
 import time
@@ -146,14 +153,14 @@ dt.fit(X_train, y_train)
 print("Duration of training: %s seconds" % (time.time() - train_start_time))
 
 
-# In[51]:
+# In[15]:
 
 
 y_pred = dt.predict(X_test)
 print(accuracy_score(y_test, y_pred))
 
 
-# In[52]:
+# In[16]:
 
 
 pred_start_time = time.time()
@@ -163,7 +170,7 @@ print("Duration of prediction: %s seconds" % (time.time() - pred_start_time))
 
 # The Outcome from model predicting data with each Principal Component = 0 is 0
 
-# In[53]:
+# In[17]:
 
 
 from sklearn.metrics import confusion_matrix
@@ -172,14 +179,14 @@ cm = confusion_matrix(y_test, y_pred)
 sb.heatmap(cm, annot=True, cmap="Blues", fmt="d")
 
 
-# In[54]:
+# In[18]:
 
 
 from sklearn.metrics import classification_report
 print(classification_report(y_test,y_pred))
 
 
-# In[55]:
+# In[19]:
 
 
 from sklearn.tree import DecisionTreeClassifier
@@ -220,7 +227,7 @@ for split in split_array:
     print(accuracy_score(y_test, y_pred))
 
 
-# In[56]:
+# In[20]:
 
 
 fig = plt.figure(figsize=(30,10))
@@ -235,7 +242,7 @@ ax.xaxis.set(ticks=range(1,15))
 plt.show()
 
 
-# In[57]:
+# In[21]:
 
 
 dt = DecisionTreeClassifier(max_depth = 11, random_state = 42) 
@@ -255,18 +262,18 @@ cm = confusion_matrix(y_test, y_pred)
 sb.heatmap(cm, annot=True, cmap="Blues", fmt="d")
 
 
-# In[58]:
+# In[22]:
 
 
 print(classification_report(y_test,y_pred))
 
 
-# In[59]:
+# In[24]:
 
 
 from sklearn import tree
 import graphviz
 from graphviz import Source
 
-Source(tree.export_graphviz(dt, out_file=None, class_names=['Outcome 0', 'Outcome 1'], feature_names= X_train.columns))
+Source(tree.export_graphviz(dt, out_file=None, class_names=True, feature_names= X_train.columns))
 

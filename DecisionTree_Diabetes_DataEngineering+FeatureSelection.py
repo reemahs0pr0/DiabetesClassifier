@@ -71,7 +71,7 @@ for i in range(263):
 df_db1
 
 
-# In[7]:
+# In[26]:
 
 
 df_db = pd.concat([df_0, df_db1])
@@ -80,9 +80,16 @@ df_db['Outcome'] = df_db['Outcome'].astype(int)
 df_db
 
 
+# In[28]:
+
+
+sb.pairplot (df_db, hue='Outcome')
+plt.show()
+
+
 # # Feature Selection
 
-# In[9]:
+# In[8]:
 
 
 sb.heatmap(df_db.corr(), annot=True, cmap='BuPu')
@@ -91,7 +98,7 @@ plt.show()
 
 # # Train the Model
 
-# In[10]:
+# In[9]:
 
 
 from sklearn.model_selection import train_test_split
@@ -99,7 +106,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 
 
-# In[49]:
+# In[10]:
 
 
 X_train, X_test, y_train, y_test = train_test_split(df_db.iloc[:,[1,5,6,7]], df_db['Outcome'],test_size=0.25,random_state = 42)
@@ -108,7 +115,7 @@ X_train.head()
 
 # # Evaluate the Model
 
-# In[50]:
+# In[11]:
 
 
 import time
@@ -119,14 +126,14 @@ dt.fit(X_train, y_train)
 print("Duration of training: %s seconds" % (time.time() - train_start_time))
 
 
-# In[51]:
+# In[12]:
 
 
 y_pred = dt.predict(X_test)
 print(accuracy_score(y_test, y_pred))
 
 
-# In[53]:
+# In[13]:
 
 
 pred_start_time = time.time()
@@ -136,21 +143,23 @@ print("Duration of prediction: %s seconds" % (time.time() - pred_start_time))
 
 # The Outcome from model predicting data with Glucose = 200, BMI = 30, DiabetesPedigreeFunction = 0.1, Age = 57 is 1
 
-# In[54]:
+# In[18]:
 
+
+from sklearn.metrics import confusion_matrix
 
 cm = confusion_matrix(y_test, y_pred)
 sb.heatmap(cm, annot=True, cmap="Blues", fmt="d")
 
 
-# In[55]:
+# In[19]:
 
 
 from sklearn.metrics import classification_report
 print(classification_report(y_test,y_pred))
 
 
-# In[56]:
+# In[20]:
 
 
 depth_array = range(1, 20)
@@ -189,7 +198,7 @@ for split in split_array:
     print(accuracy_score(y_test, y_pred))
 
 
-# In[57]:
+# In[21]:
 
 
 fig = plt.figure(figsize=(30,10))
@@ -204,7 +213,7 @@ ax.xaxis.set(ticks=range(1,20))
 plt.show()
 
 
-# In[62]:
+# In[22]:
 
 
 dt = DecisionTreeClassifier(max_depth = 7, min_samples_split = 7, random_state = 42) 
@@ -224,18 +233,18 @@ cm = confusion_matrix(y_test, y_pred)
 sb.heatmap(cm, annot=True, cmap="Blues", fmt="d")
 
 
-# In[63]:
+# In[23]:
 
 
 print(classification_report(y_test,y_pred))
 
 
-# In[64]:
+# In[24]:
 
 
 from sklearn import tree
 import graphviz
 from graphviz import Source
 
-Source(tree.export_graphviz(dt, out_file=None, class_names=['Outcome 0', 'Outcome 1'], feature_names= X_train.columns))
+Source(tree.export_graphviz(dt, out_file=None, class_names=True, feature_names= X_train.columns))
 
