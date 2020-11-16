@@ -127,14 +127,6 @@ plt.show()
 
 # # Validation with Confusion Matrix
 
-# We can use Confusion Matrix to see how the prediction goes.
-# The matrix has the format:
-# 
-# |                    |actual outcome A | actual outcome B|
-# |--------------------|-----------------|-----------------|
-# |predicted outcome A |                 |                 |
-# |predicted outcome B |                 |                 |
-
 # In[13]:
 
 
