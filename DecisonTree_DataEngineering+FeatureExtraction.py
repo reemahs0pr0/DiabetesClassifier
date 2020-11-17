@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# # Importing and Reading Data
+
 # In[1]:
 
 
@@ -17,7 +19,7 @@ df = pd.read_csv("diabetes.csv")
 df
 
 
-# # Data Clean
+# # Data Cleaning
 
 # In[3]:
 
@@ -54,7 +56,7 @@ df_1.reset_index(drop=True, inplace=True)
 df_1
 
 
-# # Data Balance
+# # Data Balancing - Oversampling
 
 # In[6]:
 
@@ -71,7 +73,7 @@ for i in range(263):
 df_db1
 
 
-# In[26]:
+# In[7]:
 
 
 df_db = pd.concat([df_0, df_db1])
@@ -80,25 +82,50 @@ df_db['Outcome'] = df_db['Outcome'].astype(int)
 df_db
 
 
-# In[28]:
+# # Visualise the Data
+
+# In[25]:
 
 
 sb.pairplot (df_db, hue='Outcome')
 plt.show()
 
 
-# # Feature Selection
+# # Feature Extraction
 
 # In[8]:
 
 
-sb.heatmap(df_db.corr(), annot=True, cmap='BuPu')
-plt.show()
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
+y = df_db.loc[:,'Outcome'].values
+x = StandardScaler().fit_transform(df_db.iloc[:,0:-1])
 
-# # Train the Model
 
 # In[9]:
+
+
+for i in range(1,9):
+    pca = PCA(n_components=i)
+    pc = pca.fit_transform(x)
+    print('Explained Variance for ' + str(pca.n_components) + ' principal components: ', pca.explained_variance_ratio_.sum())
+
+
+# In[10]:
+
+
+pca = PCA(n_components=8)
+pc = pca.fit_transform(x)
+print(pc)
+
+print('Explained Variance ratio: ', pca.explained_variance_ratio_)
+print('Explained Variance for ' + str(pca.n_components) + ' principal components: ', pca.explained_variance_ratio_.sum())
+
+
+# # Train our Model
+
+# In[11]:
 
 
 from sklearn.model_selection import train_test_split
@@ -106,16 +133,20 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 
 
-# In[10]:
+# In[12]:
 
 
-X_train, X_test, y_train, y_test = train_test_split(df_db.iloc[:,[1,5,6,7]], df_db['Outcome'],test_size=0.25,random_state = 42)
-X_train.head()
+x = pd.DataFrame(pc, columns=['PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'PC7', 'PC8'])
+x
 
 
-# # Evaluate the Model
+# In[13]:
 
-# In[11]:
+
+X_train, X_test, y_train, y_test = train_test_split(x, y,test_size=0.25,random_state = 42)
+
+
+# In[14]:
 
 
 import time
@@ -126,24 +157,30 @@ dt.fit(X_train, y_train)
 print("Duration of training: %s seconds" % (time.time() - train_start_time))
 
 
-# In[12]:
+# # Evaluate our Model
+
+# In[15]:
 
 
 y_pred = dt.predict(X_test)
 print(accuracy_score(y_test, y_pred))
 
 
-# In[13]:
+# # Predict some Value
+
+# In[16]:
 
 
 pred_start_time = time.time()
-print(dt.predict([(200, 30, 0.1, 57)]))
+print(dt.predict([(0, 0, 0, 0, 0, 0, 0, 0)]))
 print("Duration of prediction: %s seconds" % (time.time() - pred_start_time))
 
 
-# The Outcome from model predicting data with Glucose = 200, BMI = 30, DiabetesPedigreeFunction = 0.1, Age = 57 is 1
+# The Outcome from model predicting data with each Principal Component = 0 is 0
 
-# In[18]:
+# # Validation with Confusion Matrix
+
+# In[17]:
 
 
 from sklearn.metrics import confusion_matrix
@@ -152,19 +189,23 @@ cm = confusion_matrix(y_test, y_pred)
 sb.heatmap(cm, annot=True, cmap="Blues", fmt="d")
 
 
-# In[19]:
+# In[18]:
 
 
 from sklearn.metrics import classification_report
 print(classification_report(y_test,y_pred))
 
 
-# In[20]:
+# # Exploring Different max_depth, min_samples_split, min_samples_leaf
+
+# In[19]:
 
 
-depth_array = range(1, 20)
-leaf_array = range(1, 20)
-split_array = range(2, 20)
+from sklearn.tree import DecisionTreeClassifier
+
+depth_array = range(1, 15)
+leaf_array = range(1, 15)
+split_array = range(2, 15)
 
 acc_depth = []
 acc_leaf = []
@@ -198,7 +239,7 @@ for split in split_array:
     print(accuracy_score(y_test, y_pred))
 
 
-# In[21]:
+# In[20]:
 
 
 fig = plt.figure(figsize=(30,10))
@@ -207,16 +248,18 @@ ax.plot(depth_array, acc_depth, color='red', linewidth=1, marker='o', label='max
 ax.plot(leaf_array, acc_leaf, color='green', linewidth=1, marker='o', label='min_samples_leaf')
 ax.plot(split_array, acc_split, color='blue', linewidth=1, marker='o', label='min_samples_split')
 plt.legend(loc='lower right')
-ax.set_xlim(0,20)
+ax.set_xlim(0,15)
 ax.set(title='Accuracy with increasing max_depth/min_samples_leaf/min_samples_split', ylabel='Accuracy')
-ax.xaxis.set(ticks=range(1,20))
+ax.xaxis.set(ticks=range(1,15))
 plt.show()
 
 
-# In[22]:
+# # max_depth = 11, min_samples_leaf = 1, min_samples_split = 2 (Highest Accuracy)
+
+# In[21]:
 
 
-dt = DecisionTreeClassifier(max_depth = 7, min_samples_split = 7, random_state = 42) 
+dt = DecisionTreeClassifier(max_depth = 11, random_state = 42) 
 
 train_start_time = time.time()
 dt.fit(X_train, y_train)
@@ -226,14 +269,14 @@ y_pred = dt.predict(X_test)
 print("Accuracy : %s" % (accuracy_score(y_test, y_pred)))
 
 pred_start_time = time.time()
-print("Prediction: %s" % (dt.predict([(200, 30, 0.1, 57)])))
+print(dt.predict([(0, 0, 0, 0, 0, 0, 0, 0)]))
 print("Duration of prediction: %s seconds" % (time.time() - pred_start_time))
 
 cm = confusion_matrix(y_test, y_pred)
 sb.heatmap(cm, annot=True, cmap="Blues", fmt="d")
 
 
-# In[23]:
+# In[22]:
 
 
 print(classification_report(y_test,y_pred))

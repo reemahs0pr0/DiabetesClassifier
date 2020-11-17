@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# # Importing and Reading Data
+
 # In[1]:
 
 
@@ -47,8 +49,6 @@ X_train, X_test, y_train, y_test = train_test_split(df.iloc[:,0:8], df['Outcome'
 X_train.head()
 
 
-# # Evaluate the Model
-
 # In[6]:
 
 
@@ -60,12 +60,16 @@ dt.fit(X_train, y_train)
 print("Duration of training: %s seconds" % (time.time() - train_start_time))
 
 
+# # Evaluate the Model
+
 # In[7]:
 
 
 y_pred = dt.predict(X_test)
 print(accuracy_score(y_test, y_pred))
 
+
+# # Predict some Value
 
 # In[8]:
 
@@ -76,6 +80,8 @@ print("Duration of prediction: %s seconds" % (time.time() - pred_start_time))
 
 
 # The Outcome from model predicting data with Pregnancies = 2, Glucose = 100, BloodPressure = 70, SkinThickness = 20, Insulin = 100, BMI = 25, DiabetesPedigreeFunction = 0.5, Age = 27 is 0
+
+# # Validation with Confusion Matrix
 
 # In[9]:
 
@@ -92,6 +98,8 @@ sb.heatmap(cm, annot=True, cmap="Blues", fmt="d")
 from sklearn.metrics import classification_report
 print(classification_report(y_test,y_pred))
 
+
+# # Exploring Different max_depth, min_samples_split, min_samples_leaf
 
 # In[11]:
 
@@ -146,6 +154,8 @@ ax.set(title='Accuracy with increasing max_depth/min_samples_leaf/min_samples_sp
 ax.xaxis.set(ticks=range(1,50))
 plt.show()
 
+
+# # max_depth = 5, min_samples_leaf = 40, min_samples_split = 45 (Highest Accuracy)
 
 # In[13]:
 

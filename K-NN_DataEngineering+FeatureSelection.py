@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[24]:
+# # Importing and Reading Data
+
+# In[1]:
 
 
 import numpy as np
@@ -10,7 +12,7 @@ import matplotlib.pyplot as plt
 import seaborn as sb
 
 
-# In[25]:
+# In[2]:
 
 
 df = pd.read_csv("diabetes.csv")
@@ -19,7 +21,7 @@ df
 
 # # Data Cleaning
 
-# In[26]:
+# In[3]:
 
 
 df['Glucose'].replace(0,np.NaN, inplace=True)
@@ -31,7 +33,7 @@ df = df.dropna()
 df
 
 
-# In[27]:
+# In[4]:
 
 
 outcome_0 = len(df[df['Outcome'] == 0])
@@ -45,7 +47,7 @@ sample_size = pd.DataFrame(
 sample_size
 
 
-# In[28]:
+# In[5]:
 
 
 df_0 = df[df['Outcome'] == 0]
@@ -56,7 +58,7 @@ df_1
 
 # # Data Balancing - Oversampling
 
-# In[29]:
+# In[6]:
 
 
 df_db1 = pd.DataFrame(columns=['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age', 'Outcome'])
@@ -71,7 +73,7 @@ for i in range(263):
 df_db1
 
 
-# In[30]:
+# In[7]:
 
 
 df_db = pd.concat([df_0, df_db1])
@@ -82,7 +84,7 @@ df_db
 
 # # Visualise the Data
 
-# In[160]:
+# In[8]:
 
 
 sb.pairplot (df_db, hue='Outcome')
@@ -91,7 +93,7 @@ plt.show()
 
 # # Feature Selection
 
-# In[31]:
+# In[9]:
 
 
 sb.heatmap(df_db.corr(), annot=True, cmap='BuPu')
@@ -110,7 +112,7 @@ plt.show()
 
 # # Train our Model
 
-# In[32]:
+# In[10]:
 
 
 from sklearn.neighbors import KNeighborsClassifier
@@ -119,20 +121,20 @@ from sklearn.model_selection import train_test_split
 knn = KNeighborsClassifier(n_neighbors = 5) 
 
 
-# In[54]:
+# In[11]:
 
 
 X_train, X_test, y_train, y_test = train_test_split(df_db.iloc[:,[1,5,6,7]], df_db['Outcome'], random_state = 42)
 X_train.head()
 
 
-# In[55]:
+# In[12]:
 
 
 y_train.head()
 
 
-# In[56]:
+# In[13]:
 
 
 import time
@@ -144,7 +146,7 @@ print("Duration of training: %s seconds" % (time.time() - train_start_time))
 
 # # Evaluate our Model
 
-# In[57]:
+# In[14]:
 
 
 y_pred = knn.predict(X_test)
@@ -152,7 +154,7 @@ print(y_pred)
 print(y_test)
 
 
-# In[58]:
+# In[15]:
 
 
 from sklearn.metrics import accuracy_score
@@ -162,7 +164,7 @@ print(accuracy_score(y_test, y_pred))
 
 # # Predict some Value
 
-# In[59]:
+# In[16]:
 
 
 pred_start_time = time.time()
@@ -172,9 +174,26 @@ print("Duration of prediction: %s seconds" % (time.time() - pred_start_time))
 
 # The Outcome from model predicting data with Glucose = 200, BMI = 30, DiabetesPedigreeFunction = 0.1, Age = 57 is 1
 
+# # Validation with Confusion Matrix
+
+# In[17]:
+
+
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+sb.heatmap(cm, annot=True, cmap="Blues", fmt="d")
+
+
+# In[18]:
+
+
+from sklearn.metrics import classification_report
+print(classification_report(y_test,y_pred, digits=3))
+
+
 # # Exploring Different k Values
 
-# In[60]:
+# In[19]:
 
 
 k_array = np.arange(1, 30, 2)
@@ -182,7 +201,7 @@ k_array = np.arange(1, 30, 2)
 k_array
 
 
-# In[61]:
+# In[20]:
 
 
 acc = []
@@ -195,7 +214,7 @@ for k in k_array:
     print("Accuracy = {0}".format(ac))
 
 
-# In[62]:
+# In[21]:
 
 
 fig = plt.figure()
@@ -205,21 +224,4 @@ ax.set_xlim(0,30)
 ax.set(title='Accuracy with increasing k values', ylabel='Accuracy', xlabel='k')
 ax.xaxis.set(ticks=range(1,30,2))
 plt.show()
-
-
-# # Validation with Confusion Matrix
-
-# In[63]:
-
-
-from sklearn.metrics import confusion_matrix
-cm = confusion_matrix(y_test, y_pred)
-sb.heatmap(cm, annot=True, cmap="Blues", fmt="d")
-
-
-# In[64]:
-
-
-from sklearn.metrics import classification_report
-print(classification_report(y_test,y_pred, digits=3))
 
